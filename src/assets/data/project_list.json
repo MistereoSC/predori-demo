@@ -1,0 +1,46 @@
+{
+	"project_list": [
+		{
+			"project_name": "Erfindungsmeldung - Turbolader",
+			"project_number": null,
+			"client": "Client XY",
+			"patent_searcher": "Erfinder 1"
+		},
+		{
+			"project_name": "Prepetuum Mobile",
+			"project_number": "PN. 1",
+			"client": "Nobel Price Winner",
+			"patent_searcher": "Erfinder 2"
+		},
+		{
+			"project_name": "Einhornsattel",
+			"project_number": "C473-5",
+			"client": "Magic Wood Keeper",
+			"patent_searcher": "Erfinder 3"
+		},
+		{
+			"project_name": "Monitoring Projekt",
+			"project_number": null,
+			"client": "",
+			"patent_searcher": "Erfinder 4"
+		},
+		{
+			"project_name": "Mandat 3",
+			"project_number": "3",
+			"client": "Mandant 3",
+			"patent_searcher": "Erfinder 5"
+		},
+		{
+			"project_name": "Breadbox AI",
+			"project_number": "AI-2023-01",
+			"client": "Artisanal Bakeries Association",
+			"patent_searcher": "Erfinder 6"
+		},
+		{
+			"project_name": "Solar Tracking System",
+			"project_number": "SES-2023-01",
+			"client": "Green Energy Solutions Inc.",
+			"patent_searcher": "Erfinder 7"
+		}
+	]
+}
