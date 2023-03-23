@@ -4,6 +4,7 @@ import {reactive, ref, computed} from 'vue'
 import demoData from '@/assets/data/project_list.json'
 
 let listItems = []
+// For each item, add a unique, incrementing ID for referencing the original items, since no identifier is available for the demo data.
 let uniqueID = 0
 demoData.project_list.forEach((item) =>
 	listItems.push({...item, id: uniqueID++})
@@ -11,7 +12,7 @@ demoData.project_list.forEach((item) =>
 const filteredListItems = reactive({arr: [...listItems]})
 
 onMounted(() => {
-	//Set height for the scrollable list to fill the remaining height of the screen (for scrolling only inside the list instead of the entire site)
+	//Set height for the scrollable list to fill the remaining height of the screen. (for scrolling only inside the list instead of the entire site)
 	const t = document.getElementById('list')
 	const rect = t.getBoundingClientRect()
 	var body = document.body,
@@ -28,10 +29,13 @@ onMounted(() => {
 
 let filterInput = ref('')
 function filterItems(term) {
+	// Reset filter when the search input is empty
 	if (term.length == 0) {
 		filteredListItems.arr = [...listItems]
 		return
 	}
+
+	// Filter list, not regarding case sensitivity and white spaces.
 	let filteredArray = listItems.filter(
 		(item) =>
 			item.project_name
@@ -75,71 +79,98 @@ const sortCategory = {
 }
 let currentSort = ref(0)
 
+// Determine the Icon that should be displayed next to each filter category
 const sortIconName = computed(() => getIcon(1))
 const sortIconNumber = computed(() => getIcon(3))
 const sortIconClient = computed(() => getIcon(5))
 const sortIconSearcher = computed(() => getIcon(7))
-function getIcon(i){
-    let out = "fa-solid fa-sort"
-    switch (currentSort.value) {
-        case i:
-            out+="-up"
-            break;
-        case i+1:
-            out+="-down"
-            break;
-        default:
-            break;
-    }
-    return out
+function getIcon(i) {
+	let out = 'fa-solid fa-sort'
+	switch (currentSort.value) {
+		case i:
+			out += '-up'
+			break
+		case i + 1:
+			out += '-down'
+			break
+		default:
+			break
+	}
+	return out
 }
 
-function sortClick(el){
-    let t = 0
-    switch (el) {
-        case 0:
-            if(currentSort.value == sortBy.name_asc){t=sortBy.name_desc; sortListBy("project_name", false)}
-            else if (currentSort.value == sortBy.name_desc){t=sortBy.none}
-            else{t=sortBy.name_asc; sortListBy("project_name", true)}
-            break;
-        case 1:
-            if(currentSort.value == sortBy.number_asc){t=sortBy.number_desc; sortListBy("project_number", false)}
-            else if (currentSort.value == sortBy.number_desc){t=sortBy.none}
-            else{t=sortBy.number_asc; sortListBy("project_number", true)}
-            break;
-        case 2:
-            if(currentSort.value == sortBy.client_asc){t=sortBy.client_desc; sortListBy("client", false)}
-            else if (currentSort.value == sortBy.client_desc){t=sortBy.none}
-            else{t=sortBy.client_asc; sortListBy("client", true)}
-            break;
-        case 3:
-            if(currentSort.value == sortBy.searcher_asc){t=sortBy.searcher_desc; sortListBy("patent_searcher", false)}
-            else if (currentSort.value == sortBy.searcher_desc){t=sortBy.none}
-            else{t=sortBy.searcher_asc; sortListBy("patent_searcher", true)}
-            break;
-        default:
-            break;
-    }
-    currentSort.value = t
-    if(t===0){resetSortListBy()}
+function sortClick(category) {
+	let t = 0
+	switch (category) {
+		case sortCategory.name:
+			if (currentSort.value == sortBy.name_asc) {
+				t = sortBy.name_desc
+				sortListBy('project_name', false)
+			} else if (currentSort.value == sortBy.name_desc) {
+				t = sortBy.none
+			} else {
+				t = sortBy.name_asc
+				sortListBy('project_name', true)
+			}
+			break
+		case sortCategory.number:
+			if (currentSort.value == sortBy.number_asc) {
+				t = sortBy.number_desc
+				sortListBy('project_number', false)
+			} else if (currentSort.value == sortBy.number_desc) {
+				t = sortBy.none
+			} else {
+				t = sortBy.number_asc
+				sortListBy('project_number', true)
+			}
+			break
+		case sortCategory.client:
+			if (currentSort.value == sortBy.client_asc) {
+				t = sortBy.client_desc
+				sortListBy('client', false)
+			} else if (currentSort.value == sortBy.client_desc) {
+				t = sortBy.none
+			} else {
+				t = sortBy.client_asc
+				sortListBy('client', true)
+			}
+			break
+		case sortCategory.searcher:
+			if (currentSort.value == sortBy.searcher_asc) {
+				t = sortBy.searcher_desc
+				sortListBy('patent_searcher', false)
+			} else if (currentSort.value == sortBy.searcher_desc) {
+				t = sortBy.none
+			} else {
+				t = sortBy.searcher_asc
+				sortListBy('patent_searcher', true)
+			}
+			break
+		default:
+			break
+	}
+	currentSort.value = t
+	if (t === 0) {
+		resetSortListBy()
+	}
 }
-function sortListBy(key,reverse=false) {
-    let sortedArray = listItems.sort((a,b)=> {
-        if(!a[key]) return 1
-        if(!b[key]) return -1
-        if(a[key] < b[key]) return reverse ? -1 : 1
-        else return reverse ? 1 : -1
-    })
-    listItems = sortedArray
-    filterItems(filterInput.value)
+
+//Sort by key, empty keys will always be moved to the bottom of the list.
+function sortListBy(key, reverse = false) {
+	let sortedArray = listItems.sort((a, b) => {
+		if (!a[key]) return 1
+		if (!b[key]) return -1
+		if (a[key] < b[key]) return reverse ? -1 : 1
+		else return reverse ? 1 : -1
+	})
+	listItems = sortedArray
+	filterItems(filterInput.value)
 }
 
 function resetSortListBy() {
-    sortListBy('id', true)
-    currentSort.value = 0
+	sortListBy('id', true)
+	currentSort.value = 0
 }
-
-
 
 // Demo Add functionality
 // Cycles around the demo data to add to the list
@@ -174,33 +205,40 @@ function addItem() {
 		</div>
 
 		<div class="sort">
-			<button class="sort__item"
-                @:click="()=>sortClick(sortCategory.name)" 
-            >
+			<button
+				class="sort__item"
+				@:click="() => sortClick(sortCategory.name)"
+			>
 				<p class="sort__title">Project-Name</p>
 				<font-awesome-icon class="sort__icon" :icon="sortIconName" />
 			</button>
-			<button class="sort__item"
-                @:click="()=>sortClick(sortCategory.number)"
-            >
+			<button
+				class="sort__item"
+				@:click="() => sortClick(sortCategory.number)"
+			>
 				<p class="sort__title">Project-Number</p>
-				<font-awesome-icon class="sort__icon"  :icon="sortIconNumber" />
+				<font-awesome-icon class="sort__icon" :icon="sortIconNumber" />
 			</button>
-			<button class="sort__item"
-                @:click="()=>sortClick(sortCategory.client)"
-            >
+			<button
+				class="sort__item"
+				@:click="() => sortClick(sortCategory.client)"
+			>
 				<p class="sort__title">Client</p>
-				<font-awesome-icon class="sort__icon"  :icon="sortIconClient" />
+				<font-awesome-icon class="sort__icon" :icon="sortIconClient" />
 			</button>
-			<button class="sort__item"
-                @:click="()=>sortClick(sortCategory.searcher)"
-            >
+			<button
+				class="sort__item"
+				@:click="() => sortClick(sortCategory.searcher)"
+			>
 				<p class="sort__title">Patent Searcher</p>
-				<font-awesome-icon class="sort__icon"  :icon="sortIconSearcher" />
+				<font-awesome-icon
+					class="sort__icon"
+					:icon="sortIconSearcher"
+				/>
 			</button>
-			<p class="sort__item">
+			<div class="sort__item">
 				<p class="sort__title">Management</p>
-			</p>
+			</div>
 		</div>
 		<div class="add">
 			<button class="add__button" @:click="() => addItem()">
@@ -244,20 +282,26 @@ function addItem() {
 	background-color: c.$background;
 	border-radius: 35px 0 0 0;
 	padding: 2rem 4rem;
+
+	.title {
+		font-size: 1.5rem;
+		font-weight: 600;
+	}
 }
 
 .search {
 	display: flex;
 	align-items: center;
+	margin: 2rem 0 3rem 0;
 	&__input {
 		height: 2rem;
 		width: 50%;
-		margin: 1rem 0;
+		padding: 0 0.5rem;
 
 		outline: none;
 		border: none;
 		background: transparent;
-		border-bottom: 2px solid c.$text-mute;
+		border-bottom: 1px solid c.$text-mute;
 
 		font-size: 1rem;
 		line-height: 1.5;
@@ -285,25 +329,27 @@ function addItem() {
 		border: none;
 		display: flex;
 		align-items: center;
-		gap: 0.25rem;
+		gap: 0.5rem;
 
 		font-size: 1rem;
-		font-weight: bold;
+		font-weight: 600;
 		&:last-child {
 			flex: 1 1 0px;
 		}
-        user-select: none;
-
+		user-select: none;
 	}
-    button {
-            cursor: pointer;
-        }
+	button {
+		cursor: pointer;
+		&:hover {
+			color: c.$accent-blue;
+		}
+	}
 }
 
 .add {
 	display: grid;
 	place-content: center;
-	margin: 0.5rem;
+	margin: 0.5rem 2rem 0.5rem 0;
 	min-height: 5rem;
 
 	outline: 4px dotted c.$background-light;
@@ -323,17 +369,24 @@ function addItem() {
 			font-size: 2rem;
 			margin-left: 0.15rem;
 		}
+
+		&:focus-visible,
+		&:hover {
+			color: c.$accent-lightblue;
+			border-color: c.$accent-lightblue;
+			outline-offset: 4px;
+		}
 	}
 }
 
 .list {
 	margin: 1rem 0;
-	padding: 0 1rem 0 0;
+	padding: 0.5rem 1rem 0 0;
 	overflow-y: scroll;
 
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
+	gap: 1.5rem;
 
 	&__item {
 		display: flex;
@@ -353,6 +406,20 @@ function addItem() {
 			place-content: center;
 		}
 
+		&:hover {
+			background-color: c.$accent-blue;
+			color: c.$text-white;
+
+			.list__item__button {
+				color: c.$text-white;
+				border-color: c.$text-white;
+				&:hover {
+					color: c.$accent-lightblue;
+					border-color: c.$accent-lightblue;
+				}
+			}
+		}
+
 		&__button {
 			cursor: pointer;
 			width: 2rem;
@@ -361,11 +428,13 @@ function addItem() {
 			border-radius: 50%;
 			border: 2px solid c.$accent-blue;
 			color: c.$accent-blue;
-			background-color: c.$background-light;
-		}
-		&:hover {
-			background-color: c.$accent-blue;
-			color: c.$text-white;
+			background-color: transparent;
+
+			&:focus-visible {
+				color: c.$accent-lightblue;
+				border-color: c.$accent-lightblue;
+				outline-offset: 4px;
+			}
 		}
 	}
 }
